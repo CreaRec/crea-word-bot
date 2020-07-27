@@ -1,6 +1,11 @@
 package by.crearec.telegram.bot;
 
+import by.crearec.telegram.commands.custom.CancelCommand;
+import by.crearec.telegram.commands.custom.NextCommand;
 import by.crearec.telegram.commands.custom.StartCommand;
+import by.crearec.telegram.commands.custom.UploadCommand;
+import by.crearec.telegram.entity.state.BaseState;
+import by.crearec.telegram.entity.state.StateType;
 import by.crearec.telegram.repository.WordRepository;
 import by.crearec.telegram.service.ActiveUserService;
 import by.crearec.telegram.service.WordService;
@@ -10,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
@@ -35,8 +41,10 @@ public final class CreaWordBot extends TelegramLongPollingCommandBot {
 		LOGGER.info("Initializing Anonymizer Bot...");
 
 		LOGGER.info("Registering commands...");
-		LOGGER.info("Registering '/start'...");
 		register(new StartCommand(activeUserService, wordService));
+		register(new UploadCommand(activeUserService, wordService));
+		register(new NextCommand(activeUserService, wordService));
+		register(new CancelCommand(activeUserService));
 
 		LOGGER.info("Registering default action'...");
 		registerDefaultAction(((absSender, message) -> {
@@ -79,5 +87,34 @@ public final class CreaWordBot extends TelegramLongPollingCommandBot {
 		User user = msg.getFrom();
 
 		LOGGER.warn("Processing unknown message for user [{}]", user.getId());
+	}
+
+	public void stateExecute(AbsSender absSender, Message message, String wrongStateMessage, StateType... expectedStateTypes) {
+		try {
+			User user = message.getFrom();
+			SendMessage messageToSend = new SendMessage();
+			messageToSend.setChatId(message.getChat().getId().toString());
+			if (activeUserService.hasUser(user.getId())) {
+				BaseState state = activeUserService.getUser(user.getId()).getState();
+				StateType currentType = state.getType();
+				boolean result = false;
+				for (StateType expectedStateType : expectedStateTypes) {
+					if (expectedStateType == currentType) {
+						state.onProcess(absSender, message, null);
+						result = true;
+						break;
+					}
+				}
+				if (!result) {
+					messageToSend.setText(wrongStateMessage);
+					absSender.execute(messageToSend);
+				}
+			} else {
+				messageToSend.setText("Для начала используйте команду /start");
+				absSender.execute(messageToSend);
+			}
+		} catch (TelegramApiException e) {
+			LOGGER.error("Unexpected error", e);
+		}
 	}
 }

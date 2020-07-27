@@ -1,7 +1,6 @@
 package by.crearec.telegram.entity.state;
 
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 public class ActiveState implements BaseState {
@@ -11,7 +10,7 @@ public class ActiveState implements BaseState {
 	}
 
 	@Override
-	public void onProcess(AbsSender absSender, User user, Chat chat, String[] strings) {
+	public void onProcess(AbsSender absSender, Message message, String[] strings) {
 		// do nothing
 	}
 }

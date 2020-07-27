@@ -4,6 +4,9 @@ package by.crearec.telegram.bot;
 import by.crearec.telegram.commands.CommandRegistry;
 import by.crearec.telegram.commands.IBotCommand;
 import by.crearec.telegram.commands.ICommandRegistry;
+import by.crearec.telegram.entity.state.StateType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.ApiContext;
@@ -21,6 +24,8 @@ import java.util.function.BiConsumer;
  * @author Timo Schulz (Mit0x2)
  */
 public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingBot implements ICommandRegistry {
+	private static final Logger LOGGER = LogManager.getLogger(TelegramLongPollingCommandBot.class);
+
 	private final CommandRegistry commandRegistry;
 
 	/**
@@ -65,6 +70,9 @@ public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingB
 					processInvalidCommandUpdate(update);
 				}
 				return;
+			} if (message.hasDocument()) {
+				CreaWordBot.getInstance().stateExecute(this, message, "Для загрузки файла используйте команду /upload и формат файла .xlsx", StateType.UPLOAD);
+				return;
 			}
 		}
 		processNonCommandUpdate(update);
@@ -100,6 +108,7 @@ public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingB
 
 	@Override
 	public final boolean register(IBotCommand botCommand) {
+		LOGGER.info("Registering '{}'...", botCommand.getCommandIdentifier());
 		return commandRegistry.register(botCommand);
 	}
 

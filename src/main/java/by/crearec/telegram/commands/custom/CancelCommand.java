@@ -1,9 +1,9 @@
 package by.crearec.telegram.commands.custom;
 
 import by.crearec.telegram.commands.GeneralCommand;
-import by.crearec.telegram.entity.state.UploadState;
+import by.crearec.telegram.entity.ActiveUser;
+import by.crearec.telegram.entity.state.ActiveState;
 import by.crearec.telegram.service.ActiveUserService;
-import by.crearec.telegram.service.WordService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,16 +11,14 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public final class UploadCommand extends GeneralCommand {
-	private static final Logger LOGGER = LogManager.getLogger(UploadCommand.class);
+public final class CancelCommand extends GeneralCommand {
+	private static final Logger LOGGER = LogManager.getLogger(CancelCommand.class);
 
 	private final ActiveUserService activeUserService;
-	private final WordService wordService;
 
-	public UploadCommand(ActiveUserService activeUserService, WordService wordService) {
-		super("upload", "upload xlsx file\n");
+	public CancelCommand(ActiveUserService activeUserService) {
+		super("cancel", "return to active state\n");
 		this.activeUserService = activeUserService;
-		this.wordService = wordService;
 	}
 
 	@Override
@@ -29,12 +27,10 @@ public final class UploadCommand extends GeneralCommand {
 		SendMessage message = new SendMessage();
 		message.setChatId(chat.getId().toString());
 		if (activeUserService.hasUser(user.getId())) {
-			activeUserService.getUser(user.getId()).setState(new UploadState(activeUserService, wordService));
-			message.setText("Загрузите файл Excel (подробнее о загрузке файлов в разделе /help )");
-			execute(absSender, message, user);
-		} else {
-			message.setText("Для начала используйте команду /start");
-			execute(absSender, message, user);
+			ActiveUser activeUser = activeUserService.getUser(user.getId());
+			activeUser.setState(new ActiveState());
 		}
+		message.setText("Возврат к обычному состоянию. Используйте /next для поиска следующего слова.");
+		execute(absSender, message, user);
 	}
 }

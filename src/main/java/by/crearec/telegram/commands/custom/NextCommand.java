@@ -3,6 +3,7 @@ package by.crearec.telegram.commands.custom;
 import by.crearec.telegram.commands.GeneralCommand;
 import by.crearec.telegram.entity.ActiveUser;
 import by.crearec.telegram.entity.mongo.Word;
+import by.crearec.telegram.entity.state.StateType;
 import by.crearec.telegram.service.ActiveUserService;
 import by.crearec.telegram.service.WordService;
 import org.apache.logging.log4j.LogManager;
@@ -12,14 +13,14 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public final class StartCommand extends GeneralCommand {
-	private static final Logger LOGGER = LogManager.getLogger(StartCommand.class);
+public final class NextCommand extends GeneralCommand {
+	private static final Logger LOGGER = LogManager.getLogger(NextCommand.class);
 
 	private final ActiveUserService activeUserService;
 	private final WordService wordService;
 
-	public StartCommand(ActiveUserService activeUserService, WordService wordService) {
-		super("start", "start using bot\n");
+	public NextCommand(ActiveUserService activeUserService, WordService wordService) {
+		super("next", "find next word\n");
 		this.activeUserService = activeUserService;
 		this.wordService = wordService;
 	}
@@ -30,22 +31,24 @@ public final class StartCommand extends GeneralCommand {
 		SendMessage message = new SendMessage();
 		message.setChatId(chat.getId().toString());
 		if (activeUserService.hasUser(user.getId())) {
-			message.setText("Вы уже активны!");
-			execute(absSender, message, user);
-		} else {
-			activeUserService.addUser(new ActiveUser(user.getId()));
-			message.setText("Пытаемся найти Ваш словарь...");
-			execute(absSender, message, user);
-			Word random = wordService.getRandom(user.getId().toString());
-			if (random == null) {
-				message.setText("У вас не загружен словарь. Загрузите, пожалуйста, при помощи команды /upload");
-				execute(absSender, message, user);
+			ActiveUser activeUser = activeUserService.getUser(user.getId());
+			StateType type = activeUser.getState().getType();
+			if (type == StateType.ACTIVE) {
+				Word random = wordService.getRandom(user.getId().toString());
+				if (random == null) {
+					message.setText("У вас не загружен словарь. Загрузите, пожалуйста, при помощи команды /upload");
+					execute(absSender, message, user);
+				} else {
+					message.setText(random.getEn());
+					execute(absSender, message, user);
+				}
 			} else {
-				message.setText("Словарь найден. Для поиска следующего слова используйте /next. Ваше первое слово:");
-				execute(absSender, message, user);
-				message.setText(random.getEn());
+				message.setText("На данный момент вы находитесь в статусе " + type.name() + ". Для отмены используйте команту /cancel");
 				execute(absSender, message, user);
 			}
+		} else {
+			message.setText("Для начала используйте команду /start");
+			execute(absSender, message, user);
 		}
 	}
 }
