@@ -3,12 +3,14 @@ package by.crearec.telegram.bot;
 import by.crearec.telegram.commands.custom.CancelCommand;
 import by.crearec.telegram.commands.custom.NextCommand;
 import by.crearec.telegram.commands.custom.StartCommand;
+import by.crearec.telegram.commands.custom.TranslateCommand;
 import by.crearec.telegram.commands.custom.UploadCommand;
 import by.crearec.telegram.entity.state.BaseState;
 import by.crearec.telegram.entity.state.StateType;
 import by.crearec.telegram.repository.WordRepository;
 import by.crearec.telegram.service.ActiveUserService;
 import by.crearec.telegram.service.WordService;
+import by.crearec.telegram.utils.MessageUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,8 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import javax.annotation.PostConstruct;
 
 public final class CreaWordBot extends TelegramLongPollingCommandBot {
 	private static final Logger LOGGER = LogManager.getLogger(CreaWordBot.class);
@@ -38,30 +38,22 @@ public final class CreaWordBot extends TelegramLongPollingCommandBot {
 	}
 
 	private CreaWordBot() {
-		LOGGER.info("Initializing Anonymizer Bot...");
+		LOGGER.info("Initializing Word Bot...");
 
 		LOGGER.info("Registering commands...");
 		register(new StartCommand(activeUserService, wordService));
 		register(new UploadCommand(activeUserService, wordService));
 		register(new NextCommand(activeUserService, wordService));
+		register(new TranslateCommand());
 		register(new CancelCommand(activeUserService));
 
-		LOGGER.info("Registering default action'...");
-		registerDefaultAction(((absSender, message) -> {
-			LOGGER.warn("User {} is trying to execute unknown command '{}'.", message.getFrom().getId(), message.getText());
+		LOGGER.info("Registering default actions...");
+		registerDefaultMessageAction(
+				((absSender, message) -> MessageUtils.sendUnknownCommandMessage(absSender, message.getFrom(), message.getChatId(), message.getText())));
+		registerDefaultCallbackAction(((absSender, callbackQuery) -> MessageUtils
+				.sendUnknownCommandMessage(absSender, callbackQuery.getFrom(), callbackQuery.getMessage().getChatId(), callbackQuery.getData())));
 
-			SendMessage text = new SendMessage();
-			text.setChatId(message.getChatId());
-			text.setText(message.getText() + " command not found!");
-
-			try {
-				absSender.execute(text);
-			} catch (TelegramApiException e) {
-				LOGGER.error("Error while replying unknown command to user {}.", message.getFrom(), e);
-			}
-
-//            helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[] {});
-		}));
+		LOGGER.info("Bot started!");
 	}
 
 	@Override

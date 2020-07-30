@@ -5,6 +5,7 @@ import by.crearec.telegram.configuration.Configurator;
 import by.crearec.telegram.dto.TelegramGetFileDTO;
 import by.crearec.telegram.dto.TelegramResponseDTO;
 import by.crearec.telegram.entity.mongo.Word;
+import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -23,10 +24,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class FileUtils {
-	private static final Logger LOGGER = LogManager.getLogger(FileUtils.class);
+	private final Logger LOGGER = LogManager.getLogger(FileUtils.class);
 
-	public static List<Word> readFile(String fileId) {
+	public List<Word> readFile(String fileId) {
 		final Client client = Configurator.getInstance().getClient();
 		List<Word> wordList = new ArrayList<>();
 		Response response = client.target("https://api.telegram.org/bot" + CreaWordBot.BOT_TOKEN + "/getFile?file_id=" + fileId).request(MediaType.APPLICATION_JSON_TYPE)

@@ -1,5 +1,6 @@
 package by.crearec.telegram.commands;
 
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
@@ -16,7 +17,9 @@ public interface ICommandRegistry {
 	 * @note Use this method if you want your bot to execute a default action when the user
 	 * sends a command that is not registered.
 	 */
-	void registerDefaultAction(BiConsumer<AbsSender, Message> defaultConsumer);
+	void registerDefaultMessageAction(BiConsumer<AbsSender, Message> defaultConsumer);
+
+	void registerDefaultCallbackAction(BiConsumer<AbsSender, CallbackQuery> defaultConsumer);
 
 	/**
 	 * register a command

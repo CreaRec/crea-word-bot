@@ -1,12 +1,13 @@
 package by.crearec.telegram.commands;
 
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 /**
  * This Interface represents the a Command that can be executed
- *
- * @author Timo Schulz (Mit0x2)
  */
 public interface IBotCommand {
 	/**
@@ -30,4 +31,8 @@ public interface IBotCommand {
 	 * @param message   the message to process
 	 */
 	void processMessage(AbsSender absSender, Message message, String[] arguments);
+
+	void processCallback(AbsSender absSender, CallbackQuery callbackQuery, String[] arguments);
+
+	void execute(AbsSender absSender, User user, Chat chat, String[] arguments);
 }

@@ -1,14 +1,12 @@
 package by.crearec.telegram.commands;
 
-import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.apache.commons.lang3.StringUtils;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 /**
  * Representation of a command, which can be executed
- *
- * @author Timo Schulz (Mit0x2)
  */
 public abstract class BotCommand implements IBotCommand {
 	public final static String COMMAND_INIT_CHARACTER = "/";
@@ -27,7 +25,7 @@ public abstract class BotCommand implements IBotCommand {
 	 */
 	public BotCommand(String commandIdentifier, String description) {
 
-		if (commandIdentifier == null || commandIdentifier.isEmpty()) {
+		if (StringUtils.isEmpty(commandIdentifier)) {
 			throw new IllegalArgumentException("commandIdentifier for command cannot be null or empty");
 		}
 
@@ -80,13 +78,8 @@ public abstract class BotCommand implements IBotCommand {
 		execute(absSender, message.getFrom(), message.getChat(), arguments);
 	}
 
-	/**
-	 * Execute the command
-	 *
-	 * @param absSender absSender to send messages over
-	 * @param user      the user who sent the command
-	 * @param chat      the chat, to be able to send replies
-	 * @param arguments passed arguments
-	 */
-	public abstract void execute(AbsSender absSender, User user, Chat chat, String[] arguments);
+	@Override
+	public void processCallback(AbsSender absSender, CallbackQuery callbackQuery, String[] arguments) {
+		execute(absSender, callbackQuery.getFrom(), callbackQuery.getMessage().getChat(), arguments);
+	}
 }

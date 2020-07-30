@@ -5,11 +5,13 @@ import by.crearec.telegram.commands.CommandRegistry;
 import by.crearec.telegram.commands.IBotCommand;
 import by.crearec.telegram.commands.ICommandRegistry;
 import by.crearec.telegram.entity.state.StateType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.ApiContext;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -20,8 +22,6 @@ import java.util.function.BiConsumer;
 
 /**
  * This class adds command functionality to the TelegramLongPollingBot
- *
- * @author Timo Schulz (Mit0x2)
  */
 public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingBot implements ICommandRegistry {
 	private static final Logger LOGGER = LogManager.getLogger(TelegramLongPollingCommandBot.class);
@@ -66,12 +66,20 @@ public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingB
 			Message message = update.getMessage();
 			if (message.isCommand() && !filter(message)) {
 				if (!commandRegistry.executeCommand(this, message)) {
-					//we have received a not registered command, handle it as invalid
 					processInvalidCommandUpdate(update);
 				}
 				return;
 			} if (message.hasDocument()) {
 				CreaWordBot.getInstance().stateExecute(this, message, "Для загрузки файла используйте команду /upload и формат файла .xlsx", StateType.UPLOAD);
+				return;
+			}
+		} else if (update.hasCallbackQuery()) {
+			CallbackQuery callbackQuery = update.getCallbackQuery();
+			String data = callbackQuery.getData();
+			if (StringUtils.isNotEmpty(data)) {
+				if (!commandRegistry.executeCommand(this, callbackQuery)) {
+					processInvalidCommandUpdate(update);
+				}
 				return;
 			}
 		}
@@ -133,8 +141,13 @@ public abstract class TelegramLongPollingCommandBot extends TelegramLongPollingB
 	}
 
 	@Override
-	public void registerDefaultAction(BiConsumer<AbsSender, Message> defaultConsumer) {
-		commandRegistry.registerDefaultAction(defaultConsumer);
+	public void registerDefaultMessageAction(BiConsumer<AbsSender, Message> defaultConsumer) {
+		commandRegistry.registerDefaultMessageAction(defaultConsumer);
+	}
+
+	@Override
+	public void registerDefaultCallbackAction(BiConsumer<AbsSender, CallbackQuery> defaultConsumer) {
+		commandRegistry.registerDefaultCallbackAction(defaultConsumer);
 	}
 
 	@Override

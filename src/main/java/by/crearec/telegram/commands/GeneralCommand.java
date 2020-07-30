@@ -1,5 +1,7 @@
 package by.crearec.telegram.commands;
 
+import by.crearec.telegram.entity.state.StateType;
+import by.crearec.telegram.utils.MessageUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,8 +16,11 @@ public abstract class GeneralCommand extends BotCommand {
 		super(commandIdentifier, description);
 	}
 
-	public void execute(AbsSender sender, SendMessage message, User user) {
+	public void execute(AbsSender sender, SendMessage message, User user, StateType stateType, boolean addDefaultButtons) {
 		try {
+			if (addDefaultButtons) {
+				MessageUtils.addBottomButtons(message, stateType);
+			}
 			sender.execute(message);
 			LOGGER.info("Execute message info: userId: [{}], commandIdentifier: [{}]", user.getId(), getCommandIdentifier());
 		} catch (TelegramApiException e) {

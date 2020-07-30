@@ -1,0 +1,8 @@
+For setup webhook url in telegram use:
+POST /bot656020815:AAE5dUwFDw4WnpE-_NEPbXFVGW849041V3g/setWebhook HTTP/1.1
+Host: api.telegram.org
+Content-Type: application/json
+
+{
+    "url": "https://rhbr4n2929.execute-api.us-east-2.amazonaws.com/prod/english-bot"
+}

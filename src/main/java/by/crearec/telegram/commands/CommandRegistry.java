@@ -1,5 +1,6 @@
 package by.crearec.telegram.commands;
 
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
@@ -12,15 +13,14 @@ import java.util.regex.Pattern;
 
 /**
  * This class manages all the commands for a bot. You can register and deregister commands on demand
- *
- * @author Timo Schulz (Mit0x2)
  */
 public final class CommandRegistry implements ICommandRegistry {
 
 	private final Map<String, IBotCommand> commandRegistryMap = new HashMap<>();
 	private final boolean allowCommandsWithUsername;
 	private final String botUsername;
-	private BiConsumer<AbsSender, Message> defaultConsumer;
+	private BiConsumer<AbsSender, Message> defaultMessageConsumer;
+	private BiConsumer<AbsSender, CallbackQuery> defaultCallbackConsumer;
 
 	/**
 	 * Creates a Command registry
@@ -34,8 +34,13 @@ public final class CommandRegistry implements ICommandRegistry {
 	}
 
 	@Override
-	public void registerDefaultAction(BiConsumer<AbsSender, Message> defaultConsumer) {
-		this.defaultConsumer = defaultConsumer;
+	public void registerDefaultMessageAction(BiConsumer<AbsSender, Message> defaultConsumer) {
+		this.defaultMessageConsumer = defaultConsumer;
+	}
+
+	@Override
+	public void registerDefaultCallbackAction(BiConsumer<AbsSender, CallbackQuery> defaultConsumer) {
+		this.defaultCallbackConsumer = defaultConsumer;
 	}
 
 	@Override
@@ -106,10 +111,30 @@ public final class CommandRegistry implements ICommandRegistry {
 					String[] parameters = Arrays.copyOfRange(commandSplit, 1, commandSplit.length);
 					commandRegistryMap.get(command).processMessage(absSender, message, parameters);
 					return true;
-				} else if (defaultConsumer != null) {
-					defaultConsumer.accept(absSender, message);
+				} else if (defaultMessageConsumer != null) {
+					defaultMessageConsumer.accept(absSender, message);
 					return true;
 				}
+			}
+		}
+		return false;
+	}
+
+	public final boolean executeCommand(AbsSender absSender, CallbackQuery callbackQuery) {
+		String text = callbackQuery.getData();
+		if (text.startsWith(BotCommand.COMMAND_INIT_CHARACTER)) {
+			String commandMessage = text.substring(1);
+			String[] commandSplit = commandMessage.split(BotCommand.COMMAND_PARAMETER_SEPARATOR_REGEXP);
+
+			String command = removeUsernameFromCommandIfNeeded(commandSplit[0]);
+
+			if (commandRegistryMap.containsKey(command)) {
+				String[] parameters = Arrays.copyOfRange(commandSplit, 1, commandSplit.length);
+				commandRegistryMap.get(command).processCallback(absSender, callbackQuery, parameters);
+				return true;
+			} else if (defaultCallbackConsumer != null) {
+				defaultCallbackConsumer.accept(absSender, callbackQuery);
+				return true;
 			}
 		}
 		return false;

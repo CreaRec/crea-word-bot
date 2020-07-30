@@ -3,6 +3,7 @@ package by.crearec.telegram.commands.custom;
 import by.crearec.telegram.commands.GeneralCommand;
 import by.crearec.telegram.entity.ActiveUser;
 import by.crearec.telegram.entity.state.ActiveState;
+import by.crearec.telegram.entity.state.StateType;
 import by.crearec.telegram.service.ActiveUserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,7 @@ public final class CancelCommand extends GeneralCommand {
 	private final ActiveUserService activeUserService;
 
 	public CancelCommand(ActiveUserService activeUserService) {
-		super("cancel", "return to active state\n");
+		super(CommandType.CANCEL.getName(), "return to active state\n");
 		this.activeUserService = activeUserService;
 	}
 
@@ -31,6 +32,6 @@ public final class CancelCommand extends GeneralCommand {
 			activeUser.setState(new ActiveState());
 		}
 		message.setText("Возврат к обычному состоянию. Используйте /next для поиска следующего слова.");
-		execute(absSender, message, user);
+		execute(absSender, message, user, StateType.ACTIVE, true);
 	}
 }

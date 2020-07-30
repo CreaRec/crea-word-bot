@@ -1,6 +1,7 @@
 package by.crearec.telegram.commands.custom;
 
 import by.crearec.telegram.commands.GeneralCommand;
+import by.crearec.telegram.entity.state.StateType;
 import by.crearec.telegram.entity.state.UploadState;
 import by.crearec.telegram.service.ActiveUserService;
 import by.crearec.telegram.service.WordService;
@@ -18,7 +19,7 @@ public final class UploadCommand extends GeneralCommand {
 	private final WordService wordService;
 
 	public UploadCommand(ActiveUserService activeUserService, WordService wordService) {
-		super("upload", "upload xlsx file\n");
+		super(CommandType.UPLOAD.getName(), "upload xlsx file\n");
 		this.activeUserService = activeUserService;
 		this.wordService = wordService;
 	}
@@ -31,10 +32,10 @@ public final class UploadCommand extends GeneralCommand {
 		if (activeUserService.hasUser(user.getId())) {
 			activeUserService.getUser(user.getId()).setState(new UploadState(activeUserService, wordService));
 			message.setText("Загрузите файл Excel (подробнее о загрузке файлов в разделе /help )");
-			execute(absSender, message, user);
+			execute(absSender, message, user, StateType.UPLOAD, true);
 		} else {
 			message.setText("Для начала используйте команду /start");
-			execute(absSender, message, user);
+			execute(absSender, message, user, StateType.ACTIVE, true);
 		}
 	}
 }
