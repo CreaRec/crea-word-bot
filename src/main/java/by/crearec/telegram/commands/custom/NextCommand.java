@@ -47,8 +47,10 @@ public final class NextCommand extends GeneralCommand {
 				message.setText("У вас не загружен словарь. Загрузите, пожалуйста, при помощи команды /upload");
 				execute(absSender, message, user, type, true);
 			} else {
-				message.setText(random.getEn());
-				addTranslateButton(message, random.getRu());
+				String enWord = random.getEn();
+				String ruWord = random.getRu();
+				message.setText(activeUser.getIsEnglish() ? enWord : ruWord);
+				addTranslateButton(message, activeUser.getIsEnglish() ? ruWord : enWord, random.getTranscription());
 				execute(absSender, message, user, type, false);
 			}
 		} else {
@@ -57,13 +59,21 @@ public final class NextCommand extends GeneralCommand {
 		}
 	}
 
-	private static void addTranslateButton(SendMessage sendMessage, String translateWord) {
+	private static void addTranslateButton(SendMessage sendMessage, String translateWord, String transcription) {
 		if (StringUtils.isNotEmpty(translateWord)) {
+			List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
 			InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
 			inlineKeyboardButton1.setText("Translate");
 			inlineKeyboardButton1.setCallbackData(CommandType.TRANSLATE.getCommand() + " " + translateWord);
-			List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
 			keyboardButtonsRow1.add(inlineKeyboardButton1);
+
+			if (StringUtils.isNoneEmpty(transcription)) {
+				InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
+				inlineKeyboardButton2.setText("Transcription");
+				inlineKeyboardButton2.setCallbackData(CommandType.TRANSCRIPTION.getCommand() + " " + transcription);
+				keyboardButtonsRow1.add(inlineKeyboardButton2);
+			}
+
 			List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 			rowList.add(keyboardButtonsRow1);
 			InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup().setKeyboard(rowList);

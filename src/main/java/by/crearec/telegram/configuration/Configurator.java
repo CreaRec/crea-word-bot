@@ -47,7 +47,7 @@ public class Configurator {
 		ClientConfig configuration = new ClientConfig();
 		configuration.property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE);
 		configuration.register(ObjectMapperProvider.class);
-		configuration.register(JacksonFeature .class);
+		configuration.register(JacksonFeature.class);
 		return ClientBuilder.newClient(configuration);
 	}
 

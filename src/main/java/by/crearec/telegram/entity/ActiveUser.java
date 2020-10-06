@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 public class ActiveUser {
 
 	private Integer userId;
+	private Boolean isEnglish;
 	private BaseState state;
 
 	public ActiveUser(Integer userId) {
 		this.userId = userId;
 		this.state = new ActiveState();
+		this.isEnglish = true;
 	}
 }

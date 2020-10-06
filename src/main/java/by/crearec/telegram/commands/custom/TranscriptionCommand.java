@@ -10,11 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public final class TranslateCommand extends GeneralCommand {
-	private static final Logger LOGGER = LogManager.getLogger(TranslateCommand.class);
+public final class TranscriptionCommand extends GeneralCommand {
+	private static final Logger LOGGER = LogManager.getLogger(TranscriptionCommand.class);
 
-	public TranslateCommand() {
-		super(CommandType.TRANSLATE.getName(), "print translate word\n");
+	public TranscriptionCommand() {
+		super(CommandType.TRANSCRIPTION.getName(), "print word transcription\n");
 	}
 
 	@Override

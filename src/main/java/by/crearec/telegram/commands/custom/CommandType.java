@@ -13,7 +13,7 @@ public enum CommandType {
 	TRANSLATE("translate", "/translate"),
 	TRANSCRIPTION("transcription", "/transcription"),
 
-//	CHANGE("change", "/change"),
+	CHANGE_LANG("changeLang", "/changeLang"),
 
 	HELP("help", "/help");
 
@@ -34,6 +34,6 @@ public enum CommandType {
 	}
 
 	public static CommandType getByCommand(String command) {
-		return Arrays.stream(CommandType.values()).filter(item -> item.getCommand().equals(command)).findAny().orElse(null);
+		return Arrays.stream(CommandType.values()).filter(item -> item.getCommand().equalsIgnoreCase(command)).findAny().orElse(null);
 	}
 }

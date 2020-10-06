@@ -49,10 +49,11 @@ public class MessageUtils {
 		// Вторая строчка клавиатуры
 		KeyboardRow keyboardSecondRow = new KeyboardRow();
 
-		// Добавляем кнопки в первую строчку клавиатуры
+		// Добавляем кнопки в строки клавиатуры
 		if (stateType == StateType.ACTIVE) {
 			keyboardFirstRow.add(new KeyboardButton(CommandType.NEXT.getCommand()));
 			keyboardSecondRow.add(new KeyboardButton(CommandType.UPLOAD.getCommand()));
+			keyboardSecondRow.add(new KeyboardButton(CommandType.CHANGE_LANG.getCommand()));
 		} else {
 			keyboardFirstRow.add(new KeyboardButton(CommandType.CANCEL.getCommand()));
 		}

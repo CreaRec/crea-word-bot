@@ -1,8 +1,10 @@
 package by.crearec.telegram.bot;
 
 import by.crearec.telegram.commands.custom.CancelCommand;
+import by.crearec.telegram.commands.custom.ChangeLangCommand;
 import by.crearec.telegram.commands.custom.NextCommand;
 import by.crearec.telegram.commands.custom.StartCommand;
+import by.crearec.telegram.commands.custom.TranscriptionCommand;
 import by.crearec.telegram.commands.custom.TranslateCommand;
 import by.crearec.telegram.commands.custom.UploadCommand;
 import by.crearec.telegram.entity.state.BaseState;
@@ -45,6 +47,8 @@ public final class CreaWordBot extends TelegramLongPollingCommandBot {
 		register(new UploadCommand(activeUserService, wordService));
 		register(new NextCommand(activeUserService, wordService));
 		register(new TranslateCommand());
+		register(new TranscriptionCommand());
+		register(new ChangeLangCommand(activeUserService));
 		register(new CancelCommand(activeUserService));
 
 		LOGGER.info("Registering default actions...");

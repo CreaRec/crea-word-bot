@@ -37,7 +37,7 @@ public abstract class BotCommand implements IBotCommand {
 			throw new IllegalArgumentException("commandIdentifier cannot be longer than " + COMMAND_MAX_LENGTH + " (including " + COMMAND_INIT_CHARACTER + ")");
 		}
 
-		this.commandIdentifier = commandIdentifier.toLowerCase();
+		this.commandIdentifier = commandIdentifier;
 		this.description = description;
 	}
 
